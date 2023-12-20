@@ -1,0 +1,4 @@
+name: Reports
+version: '${version}'
+main: com.github.hanielcota.reports.ReportsPlugin
+api-version: '1.20'

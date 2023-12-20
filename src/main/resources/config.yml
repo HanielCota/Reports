@@ -1,0 +1,4 @@
+database:
+  jdbcUrl: "jdbc:mysql://painel.maxhostings.com.br:3306/s28_reports"
+  username: "u28_shvp0DBXfj"
+  password: "i1UiJcp62WxbXsg@MYZ@H^nW"
