@@ -6,10 +6,9 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import com.github.hanielcota.reports.ReportsPlugin;
-import com.github.hanielcota.reports.adapters.MySQLPlayerReportGateway;
-import com.github.hanielcota.reports.usecases.impl.ReportService;
 import com.github.hanielcota.reports.usecases.impl.ReportUsecaseImpl;
 import com.github.hanielcota.reports.utils.ClickMessage;
+import com.github.hanielcota.reports.utils.ReportUtils;
 import lombok.AllArgsConstructor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.Bukkit;
@@ -23,10 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @CommandAlias("report")
 @AllArgsConstructor
 public class ReportCommand extends BaseCommand {
-    private final Map<String, List<String>> reportOptionsCache = new ConcurrentHashMap<>();
+
     private final ReportsPlugin plugin;
     private final ReportUsecaseImpl reportUsecase;
-    private final ReportService reportService;
+    private final Map<String, Long> reportCooldowns = new ConcurrentHashMap<>();
+
     @Default
     @CommandCompletion("@players")
     public void onCommand(Player player, String[] args) {
@@ -43,8 +43,13 @@ public class ReportCommand extends BaseCommand {
             return;
         }
 
-        List<String> reportOptions = reportOptionsCache.computeIfAbsent("all", key -> reportUsecase.getReportOptions());
+        if (isOnCooldown(player)) {
+            player.sendMessage(
+                    "§cVocê já reportou um jogador recentemente. Aguarde um pouco antes de reportar novamente.");
+            return;
+        }
 
+        List<String> reportOptions = reportUsecase.getReportOptions();
         sendReportOptionsMessage(player, reportOptions, target);
     }
 
@@ -72,19 +77,26 @@ public class ReportCommand extends BaseCommand {
 
         String reporter = player.getName();
 
-//        if (reporter.equalsIgnoreCase(reportedPlayerName)) {
-//            player.sendMessage("§cVocê não pode se reportar.");
-//            return;
-//        }
+        if (reporter.equalsIgnoreCase(reportedPlayerName)) {
+            player.sendMessage("§cVocê não pode se reportar.");
+            return;
+        }
+
+        if (hasReportedRecently(player)) {
+            player.sendMessage(
+                    "",
+                    "§cVocê já reportou um jogador recentemente.",
+                    "§cAguarde um pouco antes de reportar novamente.",
+                    "");
+            return;
+        }
 
         plugin.getMySQLPlayerReportGateway().reportPlayer(reporter, reportedPlayerName, reason);
 
         player.sendMessage("§aSeu relatório sobre o jogador " + reportedPlayerName + " foi enviado com sucesso.");
 
-        // Processa o relatório usando o serviço de event
-        reportService.processReport(reportedPlayerName, reason);
+        reportCooldowns.put(player.getName(), System.currentTimeMillis());
     }
-
 
     private void sendReportOptionsMessage(Player player, List<String> reportOptions, Player target) {
         player.sendMessage("");
@@ -98,5 +110,15 @@ public class ReportCommand extends BaseCommand {
             clickMessage.send(player);
         }
         player.sendMessage("");
+    }
+
+    private boolean isOnCooldown(Player player) {
+        long cooldown = 300;
+        return ReportUtils.isOnCooldown(player.getName(), reportCooldowns, cooldown);
+    }
+
+    private boolean hasReportedRecently(Player player) {
+        long recentReportCooldown = 600;
+        return ReportUtils.isOnCooldown(player.getName(), reportCooldowns, recentReportCooldown);
     }
 }

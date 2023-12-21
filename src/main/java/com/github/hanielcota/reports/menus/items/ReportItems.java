@@ -2,6 +2,8 @@ package com.github.hanielcota.reports.menus.items;
 
 import com.github.hanielcota.reports.entities.PlayerReport;
 import com.github.hanielcota.reports.utils.ItemBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,10 +12,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReportItems {
 
-    public ItemStack createPlayerSkull(Player player) {
+    public static ItemStack createPlayerSkull(Player player) {
         return new ItemBuilder(Material.PLAYER_HEAD)
                 .setName("§aPainel de Relatórios")
                 .setLore(
@@ -25,7 +27,7 @@ public class ReportItems {
                 .build();
     }
 
-    public ItemStack createBackItem() {
+    public static ItemStack createBackItem() {
         return new ItemBuilder(Material.SPECTRAL_ARROW)
                 .setName("§cFechar")
                 .setLore("§7Clique aqui para fechar este menu.")
@@ -49,6 +51,38 @@ public class ReportItems {
                         "§7(Clique com Shift e Click esquerdo para remover o report)")
                 .addItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS)
                 .build();
+    }
+
+    public static ItemStack createGlobalReports(PlayerReport report) {
+        if (report == null || report.getNick() == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        boolean isTargetOnline = isTargetOnline(report.getNick());
+        String onlineStatus = isTargetOnline ? "§aOnline" : "§cOffline";
+
+        return new ItemBuilder(Material.PLAYER_HEAD)
+                .setSkullOwner(report.getNick())
+                .setName((isTargetOnline ? "§a" : "§c") + report.getNick())
+                .setLore(
+                        "",
+                        "§7ID: §f" + report.getId(),
+                        "§7Data e Hora: §f" + report.getTimestamp().format(formatter),
+                        "§7Atividade Atual: §fDesenvolver",
+                        "§7Motivo: §f" + report.getReason(),
+                        "§7Status: " + onlineStatus,
+                        "",
+                        "§aClique para teletransportar para o jogador.",
+                        "§bOu",
+                        "§e(Clique com Shift e Click esquerdo para remover o report)")
+                .build();
+    }
+
+    public static boolean isTargetOnline(String nick) {
+        Player target = Bukkit.getPlayerExact(nick);
+        return target != null && target.isOnline();
     }
 
     private static String formatTimestamp(LocalDateTime timestamp) {

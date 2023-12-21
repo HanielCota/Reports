@@ -12,10 +12,9 @@ public class ReportView {
 
     public void createReportMenu(Player player, Player target, ReportsPlugin plugin) {
         ReportMenu menu = new ReportMenu(plugin.getReportMenuUseCase(), plugin);
-        ReportItems reportItems = new ReportItems();
 
-        menu.setItem(4, reportItems.createPlayerSkull(target));
-        menu.setItem(45, reportItems.createBackItem(), click -> player.closeInventory());
+        menu.setItem(4, ReportItems.createPlayerSkull(target));
+        menu.setItem(45, ReportItems.createBackItem(), click -> player.closeInventory());
 
         List<PlayerReport> topPlayerReports = plugin.getMySQLPlayerReportGateway().getLimitedPlayerReports(target.getName(), 14);
 

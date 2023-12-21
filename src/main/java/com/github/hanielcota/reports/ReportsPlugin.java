@@ -2,18 +2,15 @@ package com.github.hanielcota.reports;
 
 import co.aikar.commands.PaperCommandManager;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.hanielcota.reports.adapters.BukkitReportService;
 import com.github.hanielcota.reports.adapters.MySQLPlayerReportGateway;
 import com.github.hanielcota.reports.commands.ReportCommand;
 import com.github.hanielcota.reports.commands.ReportsCommand;
-import com.github.hanielcota.reports.listeners.ReportEventListener;
+import com.github.hanielcota.reports.entities.PlayerReport;
 import com.github.hanielcota.reports.usecases.impl.ReportMenuUseCaseImpl;
-import com.github.hanielcota.reports.usecases.impl.ReportService;
 import com.github.hanielcota.reports.usecases.impl.ReportUsecaseImpl;
 import com.github.hanielcota.reports.utils.FastInvManager;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.concurrent.TimeUnit;
@@ -27,7 +24,7 @@ public final class ReportsPlugin extends JavaPlugin {
     private MySQLPlayerReportGateway mySQLPlayerReportGateway;
     private ReportUsecaseImpl reportUsecase;
     private ReportMenuUseCaseImpl reportMenuUseCase;
-    private ReportService reportService;
+    private PlayerReport playerReport;
 
     @Override
     public void onEnable() {
@@ -35,7 +32,7 @@ public final class ReportsPlugin extends JavaPlugin {
         loadDatabaseConfig();
         validateConfig();
         initializeDatabaseGateway();
-        initializeReportService();
+        initializePlayerReports();
         registerCommands();
         registerListeners();
     }
@@ -71,25 +68,21 @@ public final class ReportsPlugin extends JavaPlugin {
         mySQLPlayerReportGateway = new MySQLPlayerReportGateway(jdbcUrl, username, password);
         reportUsecase = new ReportUsecaseImpl();
 
-        reportMenuUseCase = new ReportMenuUseCaseImpl(Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.HOURS)
-                .build());
+        reportMenuUseCase = new ReportMenuUseCaseImpl(
+                Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build());
+    }
+
+    private void initializePlayerReports() {
+        playerReport = new PlayerReport();
     }
 
     private void registerListeners() {
         FastInvManager.register(this);
-
-        PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvents(new ReportEventListener(reportService), this);
-
     }
 
-    private void initializeReportService() {
-        this.reportService = new BukkitReportService();
-    }
     private void registerCommands() {
         PaperCommandManager commandManager = new PaperCommandManager(this);
         commandManager.registerCommand(new ReportsCommand(this));
-        commandManager.registerCommand(new ReportCommand(this, reportUsecase, reportService));
+        commandManager.registerCommand(new ReportCommand(this, reportUsecase));
     }
 }

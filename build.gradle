@@ -43,6 +43,12 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
+shadowJar {
+    relocate 'co.aikar.commands', 'com.github.hanielcota.reports.acf'
+    relocate 'co.aikar.locales', 'com.github.hanielcota.reports.locales'
+}
+
+
 def targetJavaVersion = 17
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)

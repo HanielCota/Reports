@@ -1,5 +1,6 @@
 package com.github.hanielcota.reports.events;
 
+import com.github.hanielcota.reports.entities.PlayerReport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.event.Event;
@@ -12,8 +13,7 @@ public class ReportEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
-    private final String reportedPlayer;
-    private final String reason;
+    private final PlayerReport playerReport;
 
     public @NotNull HandlerList getHandlers() {
         return handlers;
