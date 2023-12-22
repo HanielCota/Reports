@@ -64,8 +64,6 @@ public class ReportsMenu extends FastInv {
         }
     }
 
-
-
     private void handleTeleportClick(Player player, PlayerReport report) {
         Player targetPlayer = Bukkit.getPlayerExact(report.getNick());
 

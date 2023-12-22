@@ -10,6 +10,7 @@ import com.github.hanielcota.reports.usecases.impl.ReportUsecaseImpl;
 import com.github.hanielcota.reports.utils.ClickMessage;
 import com.github.hanielcota.reports.utils.ReportUtils;
 import lombok.AllArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -77,10 +78,10 @@ public class ReportCommand extends BaseCommand {
 
         String reporter = player.getName();
 
-        if (reporter.equalsIgnoreCase(reportedPlayerName)) {
-            player.sendMessage("§cVocê não pode se reportar.");
-            return;
-        }
+        //        if (reporter.equalsIgnoreCase(reportedPlayerName)) {
+        //            player.sendMessage("§cVocê não pode se reportar.");
+        //            return;
+        //        }
 
         if (hasReportedRecently(player)) {
             player.sendMessage(
@@ -96,6 +97,9 @@ public class ReportCommand extends BaseCommand {
         player.sendMessage("§aSeu relatório sobre o jogador " + reportedPlayerName + " foi enviado com sucesso.");
 
         reportCooldowns.put(player.getName(), System.currentTimeMillis());
+
+        //send discord embed message.
+        plugin.getReportHandler().sendReport(player.getName(), reportedPlayerName, reason);
     }
 
     private void sendReportOptionsMessage(Player player, List<String> reportOptions, Player target) {
