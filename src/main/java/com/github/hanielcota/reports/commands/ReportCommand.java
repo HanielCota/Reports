@@ -43,6 +43,11 @@ public class ReportCommand extends BaseCommand {
             return;
         }
 
+        if (targetNick.equalsIgnoreCase(player.getName())) {
+            player.sendMessage("§cVocê não pode se reportar.");
+            return;
+        }
+
         if (isOnCooldown(player)) {
             player.sendMessage(
                     "§cVocê já reportou um jogador recentemente. Aguarde um pouco antes de reportar novamente.");
@@ -97,7 +102,6 @@ public class ReportCommand extends BaseCommand {
 
         reportCooldowns.put(player.getName(), System.currentTimeMillis());
 
-        // send discord embed message.
         plugin.getReportHandler().sendReport(player.getName(), reportedPlayerName, reason);
     }
 
@@ -105,14 +109,24 @@ public class ReportCommand extends BaseCommand {
         player.sendMessage("");
 
         for (String option : reportOptions) {
-            ClickMessage clickMessage = new ClickMessage("").then("§a" + option);
+            ClickMessage clickMessage = new ClickMessage("").then("§c" + option);
 
-            clickMessage
-                    .click(ClickEvent.Action.RUN_COMMAND, "/report send " + target.getName() + " " + option)
+            clickMessage.click(ClickEvent.Action.RUN_COMMAND, "/report send " + target.getName() + " " + option)
                     .tooltip("§7Clique aqui para reportar o jogador " + target.getName() + ".");
 
             clickMessage.send(player);
         }
+        player.sendMessage("");
+        player.sendMessage(
+                "§cAlgumas infrações mais graves como §eRacismo/Discriminação",
+                "§eComércio Externo §ce entre outras devem ser delatadas",
+                "§ccom provas que seguem o padrão do servidor.");
+        player.sendMessage("");
+
+        new ClickMessage("§bClique aqui para entrar no Discord.")
+                .click(ClickEvent.Action.OPEN_URL, "http://localhost")
+                .send(player);
+
         player.sendMessage("");
     }
 

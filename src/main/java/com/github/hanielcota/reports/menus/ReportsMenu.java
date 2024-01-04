@@ -24,9 +24,11 @@ public class ReportsMenu extends FastInv {
     }
 
     public void setReportItems(Player player, List<PlayerReport> reports) {
-        int slot = 19;
+        int slot = 10;
 
         setItem(45, ReportItems.createBackItem(), click -> player.closeInventory());
+        setItem(49, ReportItems.createInfoItem());
+
         ItemStack barrier = new ItemBuilder(Material.BARRIER).setName("§cNão há reports.").build();
 
         if (reports.isEmpty()) {
@@ -35,8 +37,8 @@ public class ReportsMenu extends FastInv {
         }
 
         for (PlayerReport report : reports) {
-            if (slot >= 26 && slot <= 27) {
-                slot += 2;
+            if (slot == 16) {
+                slot = 19;
             }
 
             if (slot > 34) {

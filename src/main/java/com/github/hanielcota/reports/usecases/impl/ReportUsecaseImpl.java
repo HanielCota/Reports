@@ -5,21 +5,19 @@ import java.util.List;
 public class ReportUsecaseImpl {
     public List<String> getReportOptions() {
         return List.of(
-                "Uso de Hacks/Mods Proibidos",
-                "Griefing",
+                "Uso de Hacks",
+                "Abuso de Bugs",
+                "Publicidade não autorizada",
+                "Divulgação Simples",
+                "Divulgação de Comércio",
                 "Comportamento Inadequado",
-                "Assédio/Discurso de Ódio",
-                "Uso Excessivo de Caps Lock",
-                "Uso de Bugs/Exploits",
-                "Ofensa no Chat",
-                "Publicidade Não Autorizada",
-                "Spam no Chat",
-                "Violação de Política de Construção",
-                "Violação de Política de PvP",
-                "Invasão de Contas",
-                "Trapaça em Minigames",
-                "Abuso de Poder (por membros da equipe)",
-                "Roubo de Itens",
-                "Violação de Política de Nome de Usuário");
+                "Divulgação de Comércio",
+                "Ofensa à equipe/servidor",
+                "Ofensa à jogador",
+                "Anti-jogo",
+                "Flood ou Spam",
+                "Desinformação",
+                "Construção Inadequada"
+        );
     }
 }

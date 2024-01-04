@@ -23,9 +23,8 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
 
     public MySQLPlayerReportGateway(String jdbcUrl, String username, String password) {
         this.dataSource = createDataSource(jdbcUrl, username, password);
-        this.playerReportsCache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.HOURS)
-                .build();
+        this.playerReportsCache =
+                Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
         createPlayerReportsTable();
     }
 
@@ -47,11 +46,9 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
         String cacheKey = "getAllPlayerReports";
         List<PlayerReport> cachedResult = playerReportsCache.getIfPresent(cacheKey);
         if (cachedResult != null) {
-            log.info("Cache hit for key: {}", cacheKey);
             return cachedResult;
         }
 
-        log.info("Cache miss for key: {}", cacheKey);
         List<PlayerReport> result = getPlayerReports("SELECT * FROM player_reports");
         playerReportsCache.put(cacheKey, result);
         return result;
@@ -59,7 +56,8 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
 
     @Override
     public List<PlayerReport> getLimitedPlayerReports(String nick, int limit) {
-        String query = "SELECT id, nick, timestamp, role, reported, reason, online FROM player_reports WHERE nick = ? LIMIT ?";
+        String query =
+                "SELECT id, nick, timestamp, role, reported, reason, online FROM player_reports WHERE nick = ? LIMIT ?";
         return limitedPlayerReports(query, nick, limit);
     }
 
@@ -68,11 +66,9 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
         String cacheKey = "getPlayerReportsByNick" + nick;
         List<PlayerReport> cachedResult = playerReportsCache.getIfPresent(cacheKey);
         if (cachedResult != null) {
-            log.info("Cache hit for key: {}", cacheKey);
             return cachedResult;
         }
 
-        log.info("Cache miss for key: {}", cacheKey);
         List<PlayerReport> result = getPlayerReports("SELECT nick, timestamp, role, online FROM player_reports WHERE nick = ?", nick);
         playerReportsCache.put(cacheKey, result);
         return result;
@@ -82,7 +78,7 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
     public void removeReport(int reportId) {
         playerReportsCache.invalidateAll();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement("DELETE FROM player_reports WHERE id = ?")) {
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM player_reports WHERE id = ?")) {
 
             statement.setInt(1, reportId);
             statement.executeUpdate();
@@ -96,7 +92,8 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
     public void reportPlayer(String reporter, String reportedPlayer, String reason) {
         playerReportsCache.invalidateAll();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO player_reports (nick, timestamp, role, online, reported, reason) VALUES (?, ?, ?, ?, ?, ?)")) {
+                PreparedStatement statement = connection.prepareStatement(
+                        "INSERT INTO player_reports (nick, timestamp, role, online, reported, reason) VALUES (?, ?, ?, ?, ?, ?)")) {
 
             statement.setString(1, reportedPlayer);
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
@@ -117,16 +114,13 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
 
         List<PlayerReport> cachedResult = playerReportsCache.getIfPresent(cacheKey);
         if (cachedResult != null) {
-            log.info("Cache hit for key: {}", cacheKey);
             return cachedResult;
         }
-
-        log.info("Cache miss for key: {}", cacheKey);
 
         List<PlayerReport> playerReports = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+                PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, nick);
             statement.setInt(2, limit);
@@ -149,14 +143,12 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
         String cacheKey = query + Arrays.toString(parameters);
         List<PlayerReport> cachedResult = playerReportsCache.getIfPresent(cacheKey);
         if (cachedResult != null) {
-            log.info("Cache hit for key: {}", cacheKey);
             return cachedResult;
         }
 
-        log.info("Cache miss for key: {}", cacheKey);
         List<PlayerReport> result = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+                PreparedStatement statement = connection.prepareStatement(query)) {
 
             for (int i = 0; i < parameters.length; i++) {
                 statement.setString(i + 1, parameters[i]);
@@ -195,18 +187,17 @@ public class MySQLPlayerReportGateway implements PlayerReportGateway {
 
     public void createPlayerReportsTable() {
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
             String createTableQuery =
-                    "CREATE TABLE IF NOT EXISTS player_reports (" +
-                            "id INT AUTO_INCREMENT PRIMARY KEY," +
-                            "nick VARCHAR(255) NOT NULL," +
-                            "timestamp TIMESTAMP NOT NULL," +
-                            "role VARCHAR(255) NOT NULL," +
-                            "online VARCHAR(255) NOT NULL," +
-                            "reported VARCHAR(255) NOT NULL," +
-                            "reason VARCHAR(255) NOT NULL" +
-                            ")";
+                    "CREATE TABLE IF NOT EXISTS player_reports (" + "id INT AUTO_INCREMENT PRIMARY KEY,"
+                            + "nick VARCHAR(255) NOT NULL,"
+                            + "timestamp TIMESTAMP NOT NULL,"
+                            + "role VARCHAR(255) NOT NULL,"
+                            + "online VARCHAR(255) NOT NULL,"
+                            + "reported VARCHAR(255) NOT NULL,"
+                            + "reason VARCHAR(255) NOT NULL"
+                            + ")";
 
             statement.executeUpdate(createTableQuery);
 
