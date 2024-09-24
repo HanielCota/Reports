@@ -29,7 +29,7 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:5.1.0'
 
     //jda - discordAPI
-    implementation 'net.dv8tion:JDA:5.0.2'
+    implementation 'net.dv8tion:JDA:5.1.1'
 
     //command-framework for spigot
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
